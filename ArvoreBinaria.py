@@ -88,19 +88,50 @@ class ArvoreBinaria:
         print(f"Irmãos: {irmaos}")
         print(f"Tios: {tios}")
         print(f"O nó {node} é um filho {lado}.")
+        
+    # L) Crie uma função que identifique nós folha
+    def identify_node_sheet(self):
+        list_node_sheet = []
+        for node in list(self.Tree.nodes):
+            neighbors_node = list(self.Tree[node])
+            index_node_father = neighbors_node[0]
+            neighbors_node.remove(index_node_father)
+
+            if len(neighbors_node) <= 0:
+                 list_node_sheet.append(node)
+            continue
+
+        return list_node_sheet
+    
+    # M) Crie uma função que realize a impressão da árvore em formato hierárquico;
+    def imprimir_hierarquia(self):
+        list_nodes_in_tree = list(self.Tree.nodes)
+        for node in list_nodes_in_tree:
+            if node == 'RAIZ':
+                print(f'{node}: {list(self.Tree.adj[node])}')
+                continue
+
+            father_node = list(self.Tree.adj[node])[0]
+            list_adj_elements = list(self.Tree.adj[node])
+            list_adj_elements.remove(father_node)
+            print(f'{node}: {list_adj_elements}')
 
 
 # Teste
-arvore = ArvoreBinaria()
-arvore.adicionar('RAIZ', 'A')
-arvore.adicionar('RAIZ', 'B')
-arvore.adicionar('A', 'C')
-arvore.adicionar('A', 'D')
-arvore.adicionar('B', 'E')
-arvore.adicionar('B', 'F')
+if __name__ == "__main__":
+    arvore = ArvoreBinaria()
+    arvore.adicionar('RAIZ', 'A')
+    arvore.adicionar('RAIZ', 'B')
+    arvore.adicionar('A', 'C')
+    arvore.adicionar('A', 'D')
+    arvore.adicionar('B', 'E')
+    arvore.adicionar('B', 'F')
+    
+    print(arvore.identify_node_sheet())
+    arvore.imprimir_hierarquia()
 
-print("\nProfundidade da árvore:", arvore.profundidade_arvore())
-print("Altura do nó 'A':", arvore.altura_no('A'))
-print("Altura da árvore:", arvore.altura_arvore())
-print("Nível do nó 'D':", arvore.nivel_no('D'))
-arvore.verificar_no('C')
+    # print("\nProfundidade da árvore:", arvore.profundidade_arvore())
+    # print("Altura do nó 'A':", arvore.altura_no('A'))
+    # print("Altura da árvore:", arvore.altura_arvore())
+    # print("Nível do nó 'D':", arvore.nivel_no('D'))
+    # arvore.verificar_no('C')

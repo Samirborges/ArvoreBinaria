@@ -12,7 +12,7 @@ class ArvoreBinaria:
         # O desenho do grafo não está funcionando como devia
         # nx.draw(self.Tree)
         # plt.show()
-        
+         
         # Melhorar a impressão dos nos 
         print(self.Tree.adj)
     
@@ -39,3 +39,17 @@ class ArvoreBinaria:
     def depth_node(self, node):
         depth = len(nx.dijkstra_path(self.Tree, 'RAIZ', node)) - 1
         return depth
+    
+
+if __name__ == '__main__':
+    arvore = ArvoreBinaria()
+    arvore.adicionar('RAIZ','B')
+    arvore.adicionar('RAIZ','C')
+    arvore.adicionar('B','D')
+    arvore.adicionar('B','E')
+    arvore.adicionar('C','F')
+    arvore.adicionar('C','G')
+    
+    print(nx.dijkstra_path(arvore.Tree, 'D', 'G'))
+    print(arvore.depth_node('D'))
+    
