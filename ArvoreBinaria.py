@@ -10,6 +10,7 @@ class ArvoreBinaria:
     def __post_init__(self):
         self.Tree.add_node('RAIZ')
 
+    # A impressão continua com problema
     def imprimir(self):
         pos = pydot_layout(self.Tree, prog='dot')  # Layout hierárquico
         labels = {node: node for node in self.Tree.nodes()}
@@ -129,6 +130,8 @@ if __name__ == "__main__":
     
     print(arvore.identify_node_sheet())
     arvore.imprimir_hierarquia()
+    
+    # arvore.imprimir()
 
     # print("\nProfundidade da árvore:", arvore.profundidade_arvore())
     # print("Altura do nó 'A':", arvore.altura_no('A'))
