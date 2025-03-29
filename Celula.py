@@ -21,6 +21,8 @@ class Celula:
     def __str__(self):
         return self.content
     
+    def __hash__(self): return hash(self.content) # O network x aceita apenas elementos hashaveis. A instância dessa classe não é hashavel, a menos com esse thunder method.
+        
     # Nós pais
     @property
     def node_father(self): return self._node_father

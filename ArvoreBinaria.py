@@ -2,13 +2,15 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from networkx.drawing.nx_pydot import pydot_layout
+from Celula import Celula, Direction
 
 @dataclass
 class ArvoreBinaria:
     Tree: nx.Graph = nx.Graph()
 
     def __post_init__(self):
-        self.Tree.add_node('RAIZ')
+        raiz = Celula(None, None, 'RAIZ', Direction.RAIZ)
+        self.Tree.add_node(raiz)
 
     # A impressão continua com problema
     def imprimir(self):
@@ -20,7 +22,16 @@ class ArvoreBinaria:
                 node_size=1000, font_size=10)
         plt.show()
 
-    def adicionar(self, node_father, node_add):
+    def adicionar(self, node_father: str, node_add: Celula) -> None:
+        """Adiciona um nó a estrutura Árovore Binária
+
+        Args:
+            node_father (str): Adicionar o conteúdo que está na célula/nó pai
+            node_add (Celula): Célula/Nó que vai ser adicionado à estrutura
+        """
+        # Buscando a celula/no pai
+        node_father = self.found_index_node(node_father)
+        
         if node_father not in self.Tree:
             print(f"Erro: O nó pai '{node_father}' não existe na árvore.")
             return
@@ -34,13 +45,30 @@ class ArvoreBinaria:
             return
 
         self.Tree.add_edge(node_father, node_add)
+        
+        node_father.nodes_children = node_add
 
-    def degree_node(self, node):
+    def degree_node(self, node: Celula) -> Celula:
         if node not in self.Tree:
             return -1
-        return self.Tree.degree(node) - (1 if node != 'RAIZ' else 0)
+        return self.Tree.degree(node) - (1 if node.content != 'RAIZ' else 0)
 
-    def profundidade_arvore(self):
+    def found_index_node(self, node_content: str) -> int:
+        """Procura a celula dentro da estrutura através do conteúdo dentro da célula em str.
+
+        Args:
+            node_content (str): Conteúdo dentro da célula
+
+        Returns:
+            Celula: Retorna o objeto Celula que está sendo buscado.
+        """
+        
+        for node in list(self.Tree):
+            if node.content == node_content:
+                return node
+        raise(f'O nó com o conteúdo {node_content} foi encotrado na árvore.')
+
+    def profundidade_arvore(self) -> int:
         return max(self.depth_node(node) for node in self.Tree.nodes())
 
     def depth_node(self, node):
@@ -120,16 +148,26 @@ class ArvoreBinaria:
 
 # Teste
 if __name__ == "__main__":
+    # Teste com célula:
     arvore = ArvoreBinaria()
-    arvore.adicionar('RAIZ', 'A')
-    arvore.adicionar('RAIZ', 'B')
-    arvore.adicionar('A', 'C')
-    arvore.adicionar('A', 'D')
-    arvore.adicionar('B', 'E')
-    arvore.adicionar('B', 'F')
+    arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 1', Direction.ESQUERDA))
+    arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 2', Direction.DIREITA))
+    arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 3', Direction.DIREITA))
     
-    print(arvore.identify_node_sheet())
-    arvore.imprimir_hierarquia()
+    print(arvore.degree_node(arvore.found_index_node('RAIZ')))
+    
+    
+    # Testes antigos:
+    # arvore = ArvoreBinaria()
+    # arvore.adicionar('RAIZ', 'A')
+    # arvore.adicionar('RAIZ', 'B')
+    # arvore.adicionar('A', 'C')
+    # arvore.adicionar('A', 'D')
+    # arvore.adicionar('B', 'E')
+    # arvore.adicionar('B', 'F')
+    
+    # print(arvore.identify_node_sheet())
+    # arvore.imprimir_hierarquia()
     
     # arvore.imprimir()
 
