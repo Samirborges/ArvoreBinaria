@@ -49,10 +49,19 @@ class ArvoreBinaria:
         if self.degree_node(node_father) >= 2:
             print(f'O nó {node_father} já possui dois filhos.')
             return
-
+        
+        if len(node_father.nodes_children) > 0:
+            node_child = node_father.nodes_children[0]
+            if node_child.direction == node_add.direction:
+                print('Um nó já ocupa essa posição. Escolha outra.')
+                return
+           
         self.Tree.add_edge(node_father, node_add)
         
         node_father.nodes_children = node_add
+        
+
+        
 
     def degree_node(self, node: Celula) -> Celula:
         if node not in self.Tree:

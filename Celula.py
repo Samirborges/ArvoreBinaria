@@ -46,6 +46,9 @@ class Celula:
     @property
     def direction(self): return self._direction.value
     
+    @direction.setter
+    def direction(self, set_direction: Direction) -> None: self._direction = set_direction
+    
     
 # Teste    
 # Testes isolados
