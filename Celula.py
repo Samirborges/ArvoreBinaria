@@ -23,6 +23,11 @@ class Celula:
     
     def __hash__(self): return hash(self.content) # O network x aceita apenas elementos hashaveis. A instância dessa classe não é hashavel, a menos com esse thunder method.
         
+    def __eq__(self, other):
+        if isinstance(other, Celula):
+            return self.content == other.content  # Comparar pelo conteúdo
+        return False
+    
     # Nós pais
     @property
     def node_father(self): return self._node_father
