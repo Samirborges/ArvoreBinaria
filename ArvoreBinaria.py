@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
-from networkx.drawing.nx_pydot import pydot_layout
+# from networkx.drawing.nx_pydot import pydot_layout
 from Celula import Celula, Direction
 
 @dataclass
@@ -125,7 +125,7 @@ class ArvoreBinaria:
         if avo:
             tios = [n for n in self.Tree.neighbors(avo) if n != parent and self.depth_node(n) > self.depth_node(avo)]
 
-        filhos_pai = [n for n in self.Tree.neighbors(parent) if self.depth_node(n) > self.depth_node(parent)]
+        # filhos_pai = [n for n in self.Tree.neighbors(parent) if self.depth_node(n) > self.depth_node(parent)]
         lado = node.direction
 
        
@@ -134,6 +134,8 @@ class ArvoreBinaria:
         print(f"Irmãos: {irmaos}")
         print(f"Tios: {tios}")
         print(f"Lado do nó {node}: {lado}.")
+        
+        return lado
         
     # L) Crie uma função que identifique nós folha
     def identify_node_sheet(self) -> list[str]:
@@ -160,6 +162,83 @@ class ArvoreBinaria:
                 print(f'{content_node}: {filhos}')
             else:
                 print(f'{content_node}: {filhos}')
+                
+    def preOrdem(self, node=None):
+        if node is None:
+            node = self.found_index_node('RAIZ')  # Começa pela raiz
+        
+        visitados = set()
+        
+        def _preOrdem_recursivo(no):
+            if no is None or no in visitados:
+                return
+            
+            print(no.content, end=' ')  # Visita o nó atual
+            visitados.add(no)
+            
+            filhos = sorted(
+                [filho for filho in self.Tree.neighbors(no) if self.depth_node(filho) > self.depth_node(no)],
+                key=lambda x: getattr(x, 'direction', None)  # Ordena pelo atributo direction, se existir
+            )
+            
+            for filho in filhos:
+                _preOrdem_recursivo(filho)
+        
+        _preOrdem_recursivo(node)
+
+
+    def inOrdem(self, node=None):
+        if node is None:
+            node = self.found_index_node('RAIZ')
+        
+        visitados = set()
+        
+        def _inOrdem_recursivo(no):
+            if no is None or no in visitados:
+                return
+            
+            visitados.add(no)
+            
+            filhos = sorted(
+                [filho for filho in self.Tree.neighbors(no) if self.depth_node(filho) > self.depth_node(no)],
+                key=lambda x: getattr(x, 'direction', None)
+            )
+            
+            if filhos:
+                _inOrdem_recursivo(filhos[0])  # Esquerda
+            
+            print(no.content, end=' ')  # Visita o nó atual
+            
+            if len(filhos) > 1:
+                _inOrdem_recursivo(filhos[1])  # Direita
+        
+        _inOrdem_recursivo(node)
+
+
+    def posOrdem(self, node=None):
+        if node is None:
+            node = self.found_index_node('RAIZ')
+        
+        visitados = set()
+        
+        def _posOrdem_recursivo(no):
+            if no is None or no in visitados:
+                return
+            
+            visitados.add(no)
+            
+            filhos = sorted(
+                [filho for filho in self.Tree.neighbors(no) if self.depth_node(filho) > self.depth_node(no)],
+                key=lambda x: getattr(x, 'direction', None)
+            )
+            
+            for filho in filhos:
+                _posOrdem_recursivo(filho)  # Visita os filhos primeiro
+            
+            print(no.content, end=' ')  # Visita o nó atual
+        
+        _posOrdem_recursivo(node)
+
 
 # Teste
 if __name__ == "__main__":
@@ -192,15 +271,32 @@ if __name__ == "__main__":
 
     print(f'Nível do nó {arvore.nivel_no(arvore.found_index_node('C'))}')
 
-    print('Verifação do nó')
+    print('''
+Verifação do nó''')
     
     arvore.verificar_no(arvore.found_index_node('A'))
 
     print(f'Nós folhas: {arvore.identify_node_sheet()}')
-
+    print("")
+    
+    print("Pré Ordem: ")
+    arvore.preOrdem()
+    print("")
+    
+    print("Pós Ordem: ")
+    arvore.posOrdem()
+    print("")
+    
+    print("In Ordem: ")
+    arvore.inOrdem()
+    print("")
+    print("")
+    
     arvore.imprimir_hierarquia()
     
     arvore.imprimir()
+    
+    
     
     # Testes antigos:
     # arvore = ArvoreBinaria()
