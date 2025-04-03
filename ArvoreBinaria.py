@@ -26,8 +26,7 @@ class ArvoreBinaria:
         pos = nx.spring_layout(self.Tree, seed=42)
         nx.draw(self.Tree, pos, with_labels=True, node_size=2000, node_color="lightblue", font_size=10, edge_color='gray')
         plt.show()
-        
-
+       
     def adicionar(self, node_father: str, node_add: Celula) -> None:
         """Adiciona um nó a estrutura Árovore Binária
 
@@ -39,29 +38,23 @@ class ArvoreBinaria:
         node_father = self.found_index_node(node_father)
         
         if node_father not in self.Tree:
-            print(f"Erro: O nó pai '{node_father}' não existe na árvore.")
-            return
+            raise Exception(f"Erro: O nó pai '{node_father}' não existe na árvore.")
+            
 
         if node_add in self.Tree:
-            print(f"Erro: O nó '{node_add}' já existe na árvore.")
-            return
+            raise Exception(f"Erro: O nó '{node_add}' já existe na árvore.")
+            
 
         if self.degree_node(node_father) >= 2:
-            print(f'O nó {node_father} já possui dois filhos.')
-            return
-        
-        if len(node_father.nodes_children) > 0:
-            node_child = node_father.nodes_children[0]
-            if node_child.direction == node_add.direction:
-                print('Um nó já ocupa essa posição. Escolha outra.')
-                return
+            raise Exception(f'O nó {node_father} já possui dois filhos.')
+            
+        for child in node_father.nodes_children:
+            if child.direction == node_add.direction:
+                raise Exception(f'Erro! Já existe um nó ocupando a posição: {node_add.direction}')
            
         self.Tree.add_edge(node_father, node_add)
         
         node_father.nodes_children = node_add
-        
-
-        
 
     def degree_node(self, node: Celula) -> Celula:
         if node not in self.Tree:
@@ -81,7 +74,7 @@ class ArvoreBinaria:
         for node in list(self.Tree):
             if node.content == node_content:
                 return node
-        raise(f'O nó com o conteúdo {node_content} foi encotrado na árvore.')
+        raise Exception(f'O nó com o conteúdo {node_content} não foi encotrado na árvore.')
 
     def profundidade_arvore(self) -> int:
         return max(self.depth_node(node) for node in self.Tree.nodes())
@@ -110,30 +103,25 @@ class ArvoreBinaria:
 
     def verificar_no(self, node: Celula) -> None:
         if node not in self.Tree:
-            print(f"O nó '{node}' não existe na árvore.")
-            return
+            return f"O nó '{node}' não existe na árvore."
+            
 
         parent = next((pai for pai in self.Tree.neighbors(node) if self.depth_node(pai) < self.depth_node(node)), None)
-        
-        if not parent:
-            print(f"Nó: {node.content} (RAIZ)")
-            return
+        irmaos = [n.content for n in self.Tree.neighbors(parent) if n != node and self.depth_node(n) > self.depth_node(parent)] if parent else []
+        avo = next((p for p in self.Tree.neighbors(parent) if self.depth_node(p) < self.depth_node(parent)), None) if parent else None
+        tios = [n.content for n in self.Tree.neighbors(avo) if n != parent] if avo else []
+        filhos = [filho.content for filho in self.Tree.neighbors(node) if self.depth_node(filho) > self.depth_node(node)]
 
-        irmaos = [n.content for n in self.Tree.neighbors(parent) if n != node and self.depth_node(n) > self.depth_node(parent)]
-        avo = next((p for p in self.Tree.neighbors(parent) if self.depth_node(p) < self.depth_node(parent)), None)
-        tios = []
-        if avo:
-            tios = [n for n in self.Tree.neighbors(avo) if n != parent and self.depth_node(n) > self.depth_node(avo)]
+        info = f"""
+        Nó: {node.content}
+        Pai: {parent.content if parent else 'Nenhum (RAIZ)'}
+        Irmãos: {', '.join(irmaos) if irmaos else 'Nenhum'}
+        Tios: {', '.join(tios) if tios else 'Nenhum'}
+        Filhos: {', '.join(filhos) if filhos else 'Nenhum'}
+        Direção: {node.direction}
+        """
 
-        filhos_pai = [n for n in self.Tree.neighbors(parent) if self.depth_node(n) > self.depth_node(parent)]
-        lado = node.direction
-
-       
-        print(f"Nó: {node}")
-        print(f"Pai: {parent}")
-        print(f"Irmãos: {irmaos}")
-        print(f"Tios: {tios}")
-        print(f"Lado do nó {node}: {lado}.")
+        return info
         
     # L) Crie uma função que identifique nós folha
     def identify_node_sheet(self) -> list[str]:
@@ -143,7 +131,7 @@ class ArvoreBinaria:
             index_node_father = neighbors_node[0]
             neighbors_node.remove(index_node_father)
 
-            if len(neighbors_node) <= 0:
+            if len(neighbors_node) == 0:
                  list_node_sheet.append(node.content)
             continue
 
@@ -160,6 +148,67 @@ class ArvoreBinaria:
                 print(f'{content_node}: {filhos}')
             else:
                 print(f'{content_node}: {filhos}')
+
+    # N) Percurso Pré-Ordem (Root -> Left -> Right)
+    def pre_ordem(self, node: Celula = None) -> None:
+        if node is None:
+            node = self.found_index_node('RAIZ')
+        
+        # print(node.content, end=" ")
+        # for filho in node.nodes_children:
+        #     self.pre_ordem(filho)
+        resultado = []
+        self._pre_ordem_aux(node, resultado)
+        return resultado
+    
+    def _pre_ordem_aux(self, node, resultado):
+        if node:
+            resultado.append(node.content)
+            for child in node.nodes_children:
+                self._pre_ordem_aux(child, resultado)
+            
+    # O) Percurso Pós-Ordem (Left -> Right -> Root)
+    def pos_ordem(self, node: Celula = None) -> None:
+        if node is None:
+            node = self.found_index_node('RAIZ')
+        # for filho in node.nodes_children:
+        #     self.pos_ordem(filho)
+        # print(node.content, end=" ")
+        
+        resultado = []
+        self._pos_ordem_aux(node, resultado)
+        return resultado
+    
+    def _pos_ordem_aux(self, node, resultado):
+        if node:
+            for child in node.nodes_children:
+                self._pos_ordem_aux(child, resultado)
+            resultado.append(node.content)
+    
+    # P) Percurso In-Ordem (Left -> Root -> Right)
+    def in_ordem(self, node: Celula = None):
+        if node is None:
+            node = self.found_index_node('RAIZ')
+        
+        # if len(node.nodes_children) > 0:
+        #     self.in_ordem(node.nodes_children[0])
+        
+        # print(node.content, end=' ')
+        
+        # if len(node.nodes_children) > 1:
+        #     self.in_ordem(node.nodes_children[1])
+        
+        resultado = []
+        self._in_ordem_aux(node, resultado)
+        return resultado
+    
+    def _in_ordem_aux(self, node, resultado):
+        if node:
+            if len(node.nodes_children) > 0:
+                self._in_ordem_aux(node.nodes_children[0], resultado)
+        resultado.append(node.content)
+        if len(node.nodes_children) > 1:
+            self._in_ordem_aux(node.nodes_children[1], resultado)
 
 # Teste
 if __name__ == "__main__":
@@ -200,7 +249,16 @@ if __name__ == "__main__":
 
     arvore.imprimir_hierarquia()
     
-    arvore.imprimir()
+    # arvore.imprimir()
+    
+    # print('\nPré-Ordem:')
+    # arvore.pre_ordem()
+    
+    # print('\n\nPós-Ordem:')
+    # arvore.pos_ordem()
+    
+    # print('\n\nIn-Ordem:')
+    # arvore.in_ordem()
     
     # Testes antigos:
     # arvore = ArvoreBinaria()
