@@ -1,12 +1,12 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
-# from networkx.drawing.nx_pydot import pydot_layout
+from networkx.drawing.nx_pydot import graphviz_layout
 from Celula import Celula, Direction
 
 @dataclass
 class ArvoreBinaria:
-    Tree: nx.Graph = nx.Graph()
+    Tree: nx.DiGraph = nx.DiGraph()
 
     def __post_init__(self):
         raiz = Celula(None, None, 'RAIZ', Direction.RAIZ)
@@ -293,6 +293,80 @@ if __name__ == "__main__":
     # Teste com célula:
 
     arvore = ArvoreBinaria()
+
+    arvore.adicionar('RAIZ', Celula(None, None, 'A', Direction.ESQUERDA))
+    arvore.adicionar('RAIZ', Celula(None, None, 'B', Direction.DIREITA))
+    arvore.adicionar('A', Celula(None, None, 'C', Direction.ESQUERDA))
+    arvore.adicionar('A', Celula(None, None, 'D', Direction.DIREITA))
+    arvore.adicionar('B', Celula(None, None, 'E', Direction.ESQUERDA))
+    arvore.adicionar('B', Celula(None, None, 'F', Direction.DIREITA))
+    arvore.adicionar('C', Celula(None, None, 'G', Direction.ESQUERDA))
+    arvore.adicionar('C', Celula(None, None, 'H', Direction.DIREITA))
+    
+    # Teste de métodos
+    print(f'Altura {arvore.altura_no(arvore.found_index_node('A'))}') # Resultado esperado: Altura 2
+    print(f'Altura {arvore.altura_no(arvore.found_index_node('B'))}') # Resultado esperado: Altura 1
+    print(f'Altura {arvore.altura_no(arvore.found_index_node('C'))}') # Resultado esperado: Altura 1
+    print(f'Altura {arvore.altura_no(arvore.found_index_node('D'))}') # Resultado esperado: Altura 0
+    print(f'Altura {arvore.altura_no(arvore.found_index_node('RAIZ'))}') # Resultado esperado: Altura 3
+    
+    print('-'*30)
+    
+    print(f'Altura da árvore: {arvore.altura_arvore()}')
+
+    print('-'*30)
+    
+    print(f'Nível do nó RAIZ: {arvore.nivel_no(arvore.found_index_node('RAIZ'))}') # Resultado esperado: 0
+    print(f'Nível do nó A: {arvore.nivel_no(arvore.found_index_node('A'))}') # Resultado esperado 1
+    print(f'Nível do nó B: {arvore.nivel_no(arvore.found_index_node('B'))}') # Resultado esperado: 1
+    print(f'Nível do nó C: {arvore.nivel_no(arvore.found_index_node('C'))}') # Resultado esperado: 2
+    print(f'Nível do nó D: {arvore.nivel_no(arvore.found_index_node('D'))}') # Resultado esperado: 2
+    print(f'Nível do nó E: {arvore.nivel_no(arvore.found_index_node('E'))}') # Resultado esperado: 2
+    print(f'Nível do nó F: {arvore.nivel_no(arvore.found_index_node('F'))}') # Resultado esperado: 2
+    print(f'Nível do nó G: {arvore.nivel_no(arvore.found_index_node('G'))}') # Resultado esperado: 3
+    print(f'Nível do nó H: {arvore.nivel_no(arvore.found_index_node('H'))}') # Resultado esperado: 3
+    
+    print('-'*30)
+    
+    print(arvore.verificar_no(arvore.found_index_node('A')))
+     # Nó: A
+     # Pai: RAIZ
+     # Irmãos: B
+     # Tios: Nenhum
+     # Filhos: C, D
+     # Direção: Esquerda
+
+    print('-'*30)
+    
+    print(arvore.verificar_no(arvore.found_index_node('C')))
+     # Nó: C
+     # Pai: A
+     # Irmãos: D
+     # Tios: B
+     # Filhos: G, H
+     # Direção: Esquerda
+     
+    print('-'*30)
+    arvore.imprimir_hierarquia()
+     # RAIZ: ['A', 'B']
+     # A: ['C', 'D']
+     # B: ['E', 'F']
+     # C: ['G', 'H']
+     # D: []
+     # E: []
+     # F: []
+     # G: []
+     
+    print('-'*30)
+    print(f'preOrdem: {arvore.pre_ordem()}') 
+    print(f'inOrdem: {arvore.in_ordem()}') 
+    print(f'posOrdem: {arvore.pos_ordem()}')
+    # Resultado esperado:
+     # preOrdem: ['RAIZ', 'A', 'C', 'G', 'H', 'D', 'B', 'E', 'F']
+     # inOrdem: ['G', 'C', 'H', 'A', 'D', 'RAIZ', 'E', 'B', 'F']
+     # posOrdem: ['G', 'H', 'C', 'D', 'A', 'E', 'F', 'B', 'RAIZ']
+    
+    # Teste antigo
     # arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 1', Direction.ESQUERDA))
     # arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 2', Direction.DIREITA))
 
@@ -302,75 +376,43 @@ if __name__ == "__main__":
     # arvore.adicionar('Celula 1', Celula(arvore.found_index_node('Celula 1'), None, 'Celula 3', Direction.ESQUERDA))
 
     # Criando uma árvore
-    arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'A', Direction.ESQUERDA))
-    arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'B', Direction.DIREITA))
-    arvore.adicionar('A', Celula(arvore.found_index_node('A'), None, 'C', Direction.ESQUERDA))
-    arvore.adicionar('A', Celula(arvore.found_index_node('A'), None, 'D', Direction.DIREITA))
-    arvore.adicionar('B', Celula(arvore.found_index_node('B'), None, 'E', Direction.ESQUERDA))
-    arvore.adicionar('B', Celula(arvore.found_index_node('B'), None, 'F', Direction.DIREITA))
+#     arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'A', Direction.ESQUERDA))
+#     arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'B', Direction.DIREITA))
+#     arvore.adicionar('A', Celula(arvore.found_index_node('A'), None, 'C', Direction.ESQUERDA))
+#     arvore.adicionar('A', Celula(arvore.found_index_node('A'), None, 'D', Direction.DIREITA))
+#     arvore.adicionar('B', Celula(arvore.found_index_node('B'), None, 'E', Direction.ESQUERDA))
+#     arvore.adicionar('B', Celula(arvore.found_index_node('B'), None, 'F', Direction.DIREITA))
     
-    # Verificando métodos
-    print(f'Profundidade da árvore {arvore.profundidade_arvore()}')
+#     # Verificando métodos
+#     print(f'Profundidade da árvore {arvore.profundidade_arvore()}')
     
-    # Verificar se o método da altura do nó está correto!
-    print(f'Altura do nó: {arvore.altura_no(arvore.found_index_node('A'))}')
+#     # Verificar se o método da altura do nó está correto!
+#     print(f'Altura do nó: {arvore.altura_no(arvore.found_index_node('A'))}')
 
-    print(f'Altura da árvore: {arvore.altura_arvore()}')
+#     print(f'Altura da árvore: {arvore.altura_arvore()}')
 
-    print(f'Nível do nó {arvore.nivel_no(arvore.found_index_node('C'))}')
+#     print(f'Nível do nó {arvore.nivel_no(arvore.found_index_node('C'))}')
 
-    print('''
-Verifação do nó''')
+#     print('''
+# Verifação do nó''')
     
-    arvore.verificar_no(arvore.found_index_node('A'))
+#     arvore.verificar_no(arvore.found_index_node('A'))
 
-    print(f'Nós folhas: {arvore.identify_node_sheet()}')
-    print("")
+#     print(f'Nós folhas: {arvore.identify_node_sheet()}')
+#     print("")
     
-    print("Pré Ordem: ")
-    arvore.preOrdem()
-    print("")
+#     print("Pré Ordem: ")
+#     arvore.preOrdem()
+#     print("")
     
-    print("Pós Ordem: ")
-    arvore.posOrdem()
-    print("")
+#     print("Pós Ordem: ")
+#     arvore.posOrdem()
+#     print("")
     
-    print("In Ordem: ")
-    arvore.inOrdem()
-    print("")
-    print("")
+#     print("In Ordem: ")
+#     arvore.inOrdem()
+#     print("")
+#     print("")
     
-    arvore.imprimir_hierarquia()
-    
-    # arvore.imprimir()
-    
-    # print('\nPré-Ordem:')
-    # arvore.pre_ordem()
-    
-    # print('\n\nPós-Ordem:')
-    # arvore.pos_ordem()
-    
-    # print('\n\nIn-Ordem:')
-    # arvore.in_ordem()
-    
-    
-    
-    # Testes antigos:
-    # arvore = ArvoreBinaria()
-    # arvore.adicionar('RAIZ', 'A')
-    # arvore.adicionar('RAIZ', 'B')
-    # arvore.adicionar('A', 'C')
-    # arvore.adicionar('A', 'D')
-    # arvore.adicionar('B', 'E')
-    # arvore.adicionar('B', 'F')
-    
-    # print(arvore.identify_node_sheet())
-    # arvore.imprimir_hierarquia()
-    
-    # arvore.imprimir()
+#     arvore.imprimir_hierarquia()
 
-    # print("\nProfundidade da árvore:", arvore.profundidade_arvore())
-    # print("Altura do nó 'A':", arvore.altura_no('A'))
-    # print("Altura da árvore:", arvore.altura_arvore())
-    # print("Nível do nó 'D':", arvore.nivel_no('D'))
-    # arvore.verificar_no('C')
