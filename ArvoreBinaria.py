@@ -1,16 +1,17 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from networkx.drawing.nx_pydot import graphviz_layout
 from Celula import Celula, Direction
 
 @dataclass
 class ArvoreBinaria:
-    Tree: nx.DiGraph = nx.DiGraph()
+    raiz_content: any
+    Tree: nx.DiGraph = field(default_factory=nx.DiGraph, init=False)
 
     def __post_init__(self):
-        raiz = Celula(None, None, 'RAIZ', Direction.RAIZ)
-        self.Tree.add_node(raiz)
+        self.RAIZ = Celula(None, None, self.raiz_content, Direction.RAIZ)
+        self.Tree.add_node(self.RAIZ)
 
     # A impressão continua com problema
     def imprimir(self):
@@ -35,7 +36,11 @@ class ArvoreBinaria:
             node_add (Celula): Célula/Nó que vai ser adicionado à estrutura
         """
         # Buscando a celula/no pai
-        node_father = self.found_index_node(node_father)
+        try:
+            node_father_content = node_father.content
+            node_father = self.found_index_node(node_father_content)
+        except:
+            node_father = self.found_index_node(node_father)
         
         if node_father not in self.Tree:
             raise Exception(f"Erro: O nó pai '{node_father}' não existe na árvore.")
@@ -101,27 +106,42 @@ class ArvoreBinaria:
     def nivel_no(self, node: Celula) -> int:
         return self.depth_node(node)
 
-    def verificar_no(self, node: Celula) -> None:
+    def verificar_no(self, node: Celula) -> dict:
         if node not in self.Tree:
-            return f"O nó '{node}' não existe na árvore."
-            
+            return {"erro": f"O nó '{node.content}' não existe na árvore."}
 
-        parent = next((pai for pai in self.Tree.neighbors(node) if self.depth_node(pai) < self.depth_node(node)), None)
-        irmaos = [n.content for n in self.Tree.neighbors(parent) if n != node and self.depth_node(n) > self.depth_node(parent)] if parent else []
-        avo = next((p for p in self.Tree.neighbors(parent) if self.depth_node(p) < self.depth_node(parent)), None) if parent else None
-        tios = [n.content for n in self.Tree.neighbors(avo) if n != parent] if avo else []
-        filhos = [filho.content for filho in self.Tree.neighbors(node) if self.depth_node(filho) > self.depth_node(node)]
+        # Pai: quem aponta para o nó
+        parents = list(self.Tree.predecessors(node))
+        parent = parents[0] if parents else None
 
-        info = f"""
-        Nó: {node.content}
-        Pai: {parent.content if parent else 'Nenhum (RAIZ)'}
-        Irmãos: {', '.join(irmaos) if irmaos else 'Nenhum'}
-        Tios: {', '.join(tios) if tios else 'Nenhum'}
-        Filhos: {', '.join(filhos) if filhos else 'Nenhum'}
-        Direção: {node.direction}
-        """
+        # Irmãos: outros filhos do mesmo pai
+        siblings = []
+        if parent:
+            siblings = [n for n in self.Tree.successors(parent) if n != node]
 
-        return info
+        # Avo: pai do pai
+        grandparent = None
+        if parent:
+            gp = list(self.Tree.predecessors(parent))
+            if gp:
+                grandparent = gp[0]
+
+        # Tios: filhos do avo que não são o pai
+        uncles = []
+        if grandparent:
+            uncles = [n for n in self.Tree.successors(grandparent) if n != parent]
+
+        # Filhos: nós que este nó aponta
+        children = list(self.Tree.successors(node))
+
+        return {
+            "nó": node.content,
+            "pai": parent.content if parent else None,
+            "irmãos": [n.content for n in siblings],
+            "tios": [n.content for n in uncles],
+            "filhos": [n.content for n in children],
+            "direção": node.direction if node.direction else None
+        }
       
         
     # L) Crie uma função que identifique nós folha
@@ -292,10 +312,10 @@ class ArvoreBinaria:
 if __name__ == "__main__":
     # Teste com célula:
 
-    arvore = ArvoreBinaria()
-
-    arvore.adicionar('RAIZ', Celula(None, None, 'A', Direction.ESQUERDA))
-    arvore.adicionar('RAIZ', Celula(None, None, 'B', Direction.DIREITA))
+    arvore = ArvoreBinaria('RAIZ')
+    
+    arvore.adicionar(arvore.RAIZ, Celula(None, None, 'A', Direction.ESQUERDA))
+    arvore.adicionar(arvore.RAIZ, Celula(None, None, 'B', Direction.DIREITA))
     arvore.adicionar('A', Celula(None, None, 'C', Direction.ESQUERDA))
     arvore.adicionar('A', Celula(None, None, 'D', Direction.DIREITA))
     arvore.adicionar('B', Celula(None, None, 'E', Direction.ESQUERDA))
@@ -361,58 +381,8 @@ if __name__ == "__main__":
     print(f'preOrdem: {arvore.pre_ordem()}') 
     print(f'inOrdem: {arvore.in_ordem()}') 
     print(f'posOrdem: {arvore.pos_ordem()}')
-    # Resultado esperado:
-     # preOrdem: ['RAIZ', 'A', 'C', 'G', 'H', 'D', 'B', 'E', 'F']
-     # inOrdem: ['G', 'C', 'H', 'A', 'D', 'RAIZ', 'E', 'B', 'F']
-     # posOrdem: ['G', 'H', 'C', 'D', 'A', 'E', 'F', 'B', 'RAIZ']
+    #  Resultado esperado:
+    #  preOrdem: ['RAIZ', 'A', 'C', 'G', 'H', 'D', 'B', 'E', 'F']
+    #  inOrdem: ['G', 'C', 'H', 'A', 'D', 'RAIZ', 'E', 'B', 'F']
+    #  posOrdem: ['G', 'H', 'C', 'D', 'A', 'E', 'F', 'B', 'RAIZ']
     
-    # Teste antigo
-    # arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 1', Direction.ESQUERDA))
-    # arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 2', Direction.DIREITA))
-
-    # arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'Celula 3', Direction.DIREITA))
-    
-    # print(f'Grau do nó RAIZ {arvore.degree_node(arvore.found_index_node('RAIZ'))}')
-    # arvore.adicionar('Celula 1', Celula(arvore.found_index_node('Celula 1'), None, 'Celula 3', Direction.ESQUERDA))
-
-    # Criando uma árvore
-#     arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'A', Direction.ESQUERDA))
-#     arvore.adicionar('RAIZ', Celula(arvore.found_index_node('RAIZ'), None, 'B', Direction.DIREITA))
-#     arvore.adicionar('A', Celula(arvore.found_index_node('A'), None, 'C', Direction.ESQUERDA))
-#     arvore.adicionar('A', Celula(arvore.found_index_node('A'), None, 'D', Direction.DIREITA))
-#     arvore.adicionar('B', Celula(arvore.found_index_node('B'), None, 'E', Direction.ESQUERDA))
-#     arvore.adicionar('B', Celula(arvore.found_index_node('B'), None, 'F', Direction.DIREITA))
-    
-#     # Verificando métodos
-#     print(f'Profundidade da árvore {arvore.profundidade_arvore()}')
-    
-#     # Verificar se o método da altura do nó está correto!
-#     print(f'Altura do nó: {arvore.altura_no(arvore.found_index_node('A'))}')
-
-#     print(f'Altura da árvore: {arvore.altura_arvore()}')
-
-#     print(f'Nível do nó {arvore.nivel_no(arvore.found_index_node('C'))}')
-
-#     print('''
-# Verifação do nó''')
-    
-#     arvore.verificar_no(arvore.found_index_node('A'))
-
-#     print(f'Nós folhas: {arvore.identify_node_sheet()}')
-#     print("")
-    
-#     print("Pré Ordem: ")
-#     arvore.preOrdem()
-#     print("")
-    
-#     print("Pós Ordem: ")
-#     arvore.posOrdem()
-#     print("")
-    
-#     print("In Ordem: ")
-#     arvore.inOrdem()
-#     print("")
-#     print("")
-    
-#     arvore.imprimir_hierarquia()
-
