@@ -59,14 +59,17 @@ class ArvoreBinaria:
            
         self.Tree.add_edge(node_father, node_add)
         
+        
         node_father.nodes_children = node_add
+        node_add.node_father = node_father
+        
 
     def degree_node(self, node: Celula) -> Celula:
         if node not in self.Tree:
             return -1
-        return self.Tree.degree(node) - (1 if node.content != 'RAIZ' else 0)
+        return self.Tree.degree(node) - (1 if node.content != self.RAIZ.content else 0)
 
-    def found_index_node(self, node_content: str) -> int:
+    def found_index_node(self, node_content: Celula | str) -> int:
         """Procura a celula dentro da estrutura através do conteúdo dentro da célula em str.
 
         Args:
@@ -87,12 +90,12 @@ class ArvoreBinaria:
     def depth_node(self, node: Celula) -> int:
         if node not in self.Tree:
             return -1
-        return nx.shortest_path_length(self.Tree, self.found_index_node('RAIZ'), node)
+        return nx.shortest_path_length(self.Tree, self.found_index_node(self.RAIZ.content), node)
 
     def altura_no(self, node: Celula) -> int:
         if node not in self.Tree:
             return -1
-        return self._altura_aux(node)
+        return self._altura_aux(node)# + 1 adicionado por causa da AVL
 
     def _altura_aux(self, node: Celula) -> int:
         filhos = [filho for filho in self.Tree.neighbors(node) if self.depth_node(filho) > self.depth_node(node)]
@@ -101,7 +104,7 @@ class ArvoreBinaria:
         return 1 + max(self._altura_aux(filho) for filho in filhos)
 
     def altura_arvore(self) -> int:
-        return self.altura_no(self.found_index_node('RAIZ'))
+        return self.altura_no(self.found_index_node(self.RAIZ.content))
 
     def nivel_no(self, node: Celula) -> int:
         return self.depth_node(node)
@@ -147,14 +150,10 @@ class ArvoreBinaria:
     # L) Crie uma função que identifique nós folha
     def identify_node_sheet(self) -> list[str]:
         list_node_sheet = []
-        for node in list(self.Tree.nodes):
-            neighbors_node = list(self.Tree[node])
-            index_node_father = neighbors_node[0]
-            neighbors_node.remove(index_node_father)
 
-            if len(neighbors_node) == 0:
-                 list_node_sheet.append(node.content)
-            continue
+        for node in self.Tree.nodes:
+            if self.Tree.out_degree(node) == 0:  # Sem filhos
+                list_node_sheet.append(node)
 
         return list_node_sheet
     
@@ -165,14 +164,14 @@ class ArvoreBinaria:
             
             filhos = [filho.content for filho in self.Tree.neighbors(node) if self.depth_node(filho) > self.depth_node(node)]
 
-            if content_node == 'RAIZ':
+            if content_node == self.RAIZ.content:
                 print(f'{content_node}: {filhos}')
             else:
                 print(f'{content_node}: {filhos}')
                 
     def preOrdem(self, node=None):
         if node is None:
-            node = self.found_index_node('RAIZ')  # Começa pela raiz
+            node = self.found_index_node(self.RAIZ.content)  # Começa pela raiz
         
         visitados = set()
         
@@ -196,7 +195,7 @@ class ArvoreBinaria:
 
     def inOrdem(self, node=None):
         if node is None:
-            node = self.found_index_node('RAIZ')
+            node = self.found_index_node(self.RAIZ.content)
         
         visitados = set()
         
@@ -224,7 +223,7 @@ class ArvoreBinaria:
 
     def posOrdem(self, node=None):
         if node is None:
-            node = self.found_index_node('RAIZ')
+            node = self.found_index_node(self.RAIZ.content)
         
         visitados = set()
         
@@ -250,7 +249,7 @@ class ArvoreBinaria:
     # N) Percurso Pré-Ordem (Root -> Left -> Right)
     def pre_ordem(self, node: Celula = None) -> None:
         if node is None:
-            node = self.found_index_node('RAIZ')
+            node = self.found_index_node(self.RAIZ.content)
         
         # print(node.content, end=" ")
         # for filho in node.nodes_children:
@@ -268,7 +267,7 @@ class ArvoreBinaria:
     # O) Percurso Pós-Ordem (Left -> Right -> Root)
     def pos_ordem(self, node: Celula = None) -> None:
         if node is None:
-            node = self.found_index_node('RAIZ')
+            node = self.found_index_node(self.RAIZ.content)
         # for filho in node.nodes_children:
         #     self.pos_ordem(filho)
         # print(node.content, end=" ")
@@ -286,7 +285,7 @@ class ArvoreBinaria:
     # P) Percurso In-Ordem (Left -> Root -> Right)
     def in_ordem(self, node: Celula = None):
         if node is None:
-            node = self.found_index_node('RAIZ')
+            node = self.found_index_node(self.RAIZ.content)
         
         # if len(node.nodes_children) > 0:
         #     self.in_ordem(node.nodes_children[0])

@@ -21,6 +21,9 @@ class Celula:
     def __str__(self):
         return self.content
     
+    def __repr__(self):
+        return self.content
+    
     def __hash__(self): return hash(self.content) # O network x aceita apenas elementos hashaveis. A instância dessa classe não é hashavel, a menos com esse thunder method.
         
     def __eq__(self, other):
@@ -44,7 +47,7 @@ class Celula:
     
     # Direção
     @property
-    def direction(self): return self._direction.value
+    def direction(self): return self._direction
     
     @direction.setter
     def direction(self, set_direction: Direction) -> None: self._direction = set_direction
