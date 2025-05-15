@@ -30,6 +30,8 @@ class ArvoreAVL(ArvoreBinaria):
         print(f'Altura do nó direito: {altura_filho_direito}')
         print(f'Peso: {peso}')
         
+        print('-'*30)
+        
         if -1 <= peso <= 1:
             print('Árvore Balanceada')
         else:
@@ -40,23 +42,37 @@ class ArvoreAVL(ArvoreBinaria):
                 
                 new_children = father_node
                 
-                if direcao_balanceamento == Direction.DIREITA:
-                    # Definindo a nova raiz
-                    
-                    filho_a_balancear = filho_esquerdo if direcao_balanceamento == Direction.DIREITA else filho_direito
-                    
-                    nova_raiz = filho_a_balancear
-                    nova_raiz.direction = Direction.RAIZ
-                    self.RAIZ = nova_raiz
-                    
-                    print(new_children)
-                    new_children.direction = direcao_balanceamento
-                    new_children.node_father = self.RAIZ
-                    
-                    # Removendo o antigo nó filho
-                    if filho_a_balancear in new_children.nodes_children: new_children.nodes_children.remove(filho_a_balancear)
-                    
-                    return
+                # if direcao_balanceamento == Direction.DIREITA:
+                # Definindo a nova raiz
+                filho_a_balancear = filho_esquerdo if direcao_balanceamento == Direction.DIREITA else filho_direito
+                
+                nova_raiz = filho_a_balancear
+                nova_raiz.direction = Direction.RAIZ
+                self.RAIZ = nova_raiz
+                
+                new_children.direction = direcao_balanceamento
+                new_children.node_father = self.RAIZ
+                
+                # Removendo o antigo nó filho
+                if filho_a_balancear in new_children.nodes_children: new_children.nodes_children.remove(filho_a_balancear)
+                
+                # Remoção do pai da raiz
+                nova_raiz.node_father = None
+                
+                # Adicição do novo nó filho na lista de filhos da nova raiz
+                nova_raiz.nodes_children = new_children
+                
+                print('Nova raiz: ', nova_raiz)
+                print(self.verificar_no(nova_raiz))
+                
+                print('-'*30)
+                
+                print('Novo filho', new_children)
+                print(self.verificar_no(new_children))
+                
+                print('-'*30)
+                return
+               
                 
             # Balanceamento de nós normais
             print('Direção Balanceamento', direcao_balanceamento)
@@ -139,27 +155,16 @@ class ArvoreAVL(ArvoreBinaria):
         }
 
 if __name__ == "__main__":
-    # avl = ArvoreAVL('15')
-    # # for valor in [27, 29]:
-    # #     avl.adicionar(avl.RAIZ, Celula(None, None, f'{valor}', Direction.ESQUERDA))
-    # avl.adicionar('15', Celula(None, None, '27', Direction.ESQUERDA))
-    # avl.adicionar('27', Celula(None, None, '29', Direction.ESQUERDA))
-    
-    # no1 = avl.found_index_node('15')
-    # print(f'Nó pai do 15: {no1.node_father}')
-    # print(f'Nó Direção: {no1.direction}')
-    
-    # print('AVL 2:')
-    
-    # avl1 = ArvoreAVL('15')
-    # avl1.adicionar('15', Celula(None, None, '27', Direction.DIREITA))
-    # avl1.adicionar('27', Celula(None, None, '29', Direction.DIREITA))
-
-    # no1 = avl1.found_index_node('15')
-    # print(f'Nó pai do 15: {no1.node_father}')
-    # print(f'Nó Direção: {no1.direction}')
-    
     # Adicionando os nós
+    avl1 = ArvoreAVL('15')
+    avl1.adicionar('15', Celula(None, None, '27', Direction.ESQUERDA))
+    avl1.adicionar('27', Celula(None, None, '29', Direction.ESQUERDA))
+    
+    
+    avl2 = ArvoreAVL('15')
+    avl2.adicionar('15', Celula(None, None, '27', Direction.DIREITA))
+    avl2.adicionar('27', Celula(None, None, '29', Direction.DIREITA))
+    
     avl3 = ArvoreAVL('27')
     avl3.adicionar(avl3.RAIZ, Celula(None, None, '15', Direction.ESQUERDA))
     avl3.adicionar(avl3.RAIZ, Celula(None, None, '29', Direction.DIREITA))
@@ -168,8 +173,31 @@ if __name__ == "__main__":
     avl3.adicionar('29', Celula(None, None, '13', Direction.DIREITA))
     avl3.adicionar('13', Celula(None, None, '12', Direction.DIREITA))
     
-    print('-'*30)
     # Imprindo
-    for node in list(avl3.Tree):
-        print(avl3.verificar_no(node))
+    print('AVL 1:')
+    for node in list(avl1.Tree): print(avl1.verificar_no(node))
+    print('-'*30)
+        # AVL 1:
+        # {'Nó': '15', 'Pai': 27, 'Filhos': [], 'Direção': 'Direita'}
+        # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [29, 15], 'Direção': 'RAIZ'}
+        # {'Nó': '29', 'Pai': 27, 'Filhos': [], 'Direção': 'Esquerda'}
     
+    print('AVL 2:')
+    for node in list(avl2.Tree): print(avl2.verificar_no(node))
+    print('-'*30)
+        # AVL 2:
+        # {'Nó': '15', 'Pai': 27, 'Filhos': [], 'Direção': 'Esquerda'}
+        # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [29, 15], 'Direção': 'RAIZ'}
+        # {'Nó': '29', 'Pai': 27, 'Filhos': [], 'Direção': 'Direita'}
+    
+    print('AVL 3:')
+    for node in list(avl3.Tree): print(avl3.verificar_no(node))
+        # AVL 3:
+        # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [16, 13], 'Direção': 'RAIZ'}
+        # {'Nó': '15', 'Pai': 16, 'Filhos': [], 'Direção': 'Direita'}
+        # {'Nó': '29', 'Pai': 13, 'Filhos': [], 'Direção': 'Esquerda'}
+        # {'Nó': '16', 'Pai': 27, 'Filhos': [17, 15], 'Direção': 'Esquerda'}
+        # {'Nó': '17', 'Pai': 16, 'Filhos': [], 'Direção': 'Esquerda'}
+        # {'Nó': '13', 'Pai': 27, 'Filhos': [12, 29], 'Direção': 'Direita'}
+        # {'Nó': '12', 'Pai': 13, 'Filhos': [], 'Direção': 'Direita'}
+        
