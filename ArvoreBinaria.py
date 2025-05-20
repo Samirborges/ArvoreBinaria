@@ -69,7 +69,7 @@ class ArvoreBinaria:
             return -1
         return self.Tree.degree(node) - (1 if node.content != self.RAIZ.content else 0)
 
-    def found_index_node(self, node_content: Celula | str) -> int:
+    def found_index_node(self, node_content: Celula | str) -> Celula:
         """Procura a celula dentro da estrutura através do conteúdo dentro da célula em str.
 
         Args:
@@ -79,18 +79,28 @@ class ArvoreBinaria:
             Celula: Retorna o objeto Celula que está sendo buscado.
         """
         
-        for node in list(self.Tree):
-            if node.content == node_content:
-                return node
-        raise Exception(f'O nó com o conteúdo {node_content} não foi encotrado na árvore.')
+        def buscar(no):
+            if no.content == node_content:
+                return no
+            for filho in no.nodes_children:
+                resultado = buscar(filho)
+                if resultado:
+                    return resultado
+            return None
+
+        resultado = buscar(self.RAIZ)
+        if resultado:
+            return resultado
+        raise Exception(f'O nó com o conteúdo {node_content} não foi encontrado na árvore.')
 
     def profundidade_arvore(self) -> int:
         return max(self.depth_node(node) for node in self.Tree.nodes())
 
-    def depth_node(self, node: Celula) -> int:
-        if node not in self.Tree:
-            return -1
-        return nx.shortest_path_length(self.Tree, self.found_index_node(self.RAIZ.content), node)
+    def depth_node(self, node):
+        origem = self.found_index_node(self.RAIZ.content)
+        if not nx.has_path(self.Tree, origem, node):
+            raise Exception(f'Sem caminho entre a raiz {origem} e o nó {node}')
+        return nx.shortest_path_length(self.Tree, origem, node)
 
     def altura_no(self, node: Celula) -> int:
         if node not in self.Tree:

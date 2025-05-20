@@ -1,156 +1,140 @@
 from ArvoreBinaria import ArvoreBinaria
 from Celula import Celula, Direction
+import networkx as nx
 
 DEBUGGER = False
-
-def debugger(funcao, mensagem, comando): 
-    if comando: print(f'{funcao}: {mensagem}')
+def debugger(mensagem: str):
+    if DEBUGGER: print(mensagem)
 
 class ArvoreAVL(ArvoreBinaria):
-    def balanceamento(self, father_node):
-        if father_node == None: return 0
-        
-        # Capturando o nó pai
-        try:
-            father_node = self.found_index_node(father_node)
-        except:
-            father_node = self.found_index_node(father_node.content)
-        
-        
-        # print(f'Analisando o nó: {father_node}')
-        debugger('balanceamento', f'Analisando o nó: {father_node}', DEBUGGER)
-        
-        lista_filhos = father_node.nodes_children
-        # Pegando a direção dos nós 
-        filho_esquerdo = next((filho for filho in lista_filhos if filho.direction == Direction.ESQUERDA), 0)
-        filho_direito = next((filho for filho in lista_filhos if filho.direction == Direction.DIREITA), 0)
-        
-        
-        # Encontrar a altura dos nós filhos
-        altura_filho_esquerdo = self.altura_no(filho_esquerdo) if isinstance(filho_esquerdo, Celula) == True else 0
-        altura_filho_direito = self.altura_no(filho_direito) if isinstance(filho_direito, Celula) == True else 0
-        
-        peso = altura_filho_esquerdo - altura_filho_direito
-        
-        # print(f'Altura do nó esquerdo: {altura_filho_esquerdo}')
-        # print(f'Altura do nó direito: {altura_filho_direito}')
-        # print(f'Peso: {peso}')
-        
-        debugger('balanceamento', f'Altura do nó esquerdo: {altura_filho_esquerdo}', DEBUGGER)
-        debugger('balanceamento', f'Altura do nó direito: {altura_filho_direito}', DEBUGGER)
-        debugger('balanceamento', f'Peso: {peso}', DEBUGGER)
-        
-        
-        
-        if -1 <= peso <= 1: debugger('balanceamento', f'Árvore balanceada. Peso: {peso}', DEBUGGER); print('-'*30) if DEBUGGER else 0
-        else:
-            debugger('balanceamento', f'Árvore desbalanceada: {peso}', DEBUGGER)
-            direcao_balanceamento = Direction.DIREITA if peso > 0 else Direction.ESQUERDA
-                        
-            if father_node.direction == Direction.RAIZ: # Faz o balanceamento mudando a raiz
-                
-                new_children = father_node
-                
-                # Definindo a nova raiz
-                filho_a_balancear = filho_esquerdo if direcao_balanceamento == Direction.DIREITA else filho_direito
-                
-                nova_raiz = filho_a_balancear
-                nova_raiz.direction = Direction.RAIZ
-                self.RAIZ = nova_raiz
-                
-                new_children.direction = direcao_balanceamento
-                new_children.node_father = self.RAIZ
-                
-                # Removendo o antigo nó filho
-                if filho_a_balancear in new_children.nodes_children: new_children.nodes_children.remove(filho_a_balancear)
-                
-                # Remoção do pai da raiz
-                nova_raiz.node_father = None
-                
-                # Adicição do novo nó filho na lista de filhos da nova raiz
-                nova_raiz.nodes_children = new_children
-                
-                debugger('balanceamento', f'Nova raiz: {nova_raiz}', DEBUGGER)
-                debugger('balanceamento', f'{self.verificar_no(nova_raiz)}', DEBUGGER)
-                
-                debugger('balanceamento', '-'*30, DEBUGGER)
-                debugger('balanceamento', f'Novo filho {new_children}', DEBUGGER)
-                debugger('balanceamento', f'{self.verificar_no(new_children)}', DEBUGGER)
-                debugger('balanceamento', '-'*30, DEBUGGER)
-                
-                return
-               
-                
-            # Balanceamento de nós normais
-            # print('Direção Balanceamento', direcao_balanceamento)
-            debugger('balanceamento', f'Direção Balanceamento: {direcao_balanceamento}', DEBUGGER)
-            
-            filho_a_balancear = filho_direito if direcao_balanceamento == Direction.ESQUERDA else filho_esquerdo
-            
-            # print('Direção do nó a balancear: ', filho_a_balancear.direction)
-            debugger('balanceamento', f'Direção do nó a balancear:  {filho_a_balancear.direction}', DEBUGGER)
-            
-            novo_no_pai = filho_a_balancear
-            
-            new_children = father_node
-            new_children.direction = direcao_balanceamento
-            
-            # print(f'Nova direção do antigo nó pai: {new_children.direction.value}')
-            debugger('balanceamento', f'Nova direção do antigo nó pai: {new_children.direction.value}', DEBUGGER)
-
-            # Adicionando o novo nó pai do novo_pai
-            novo_no_pai.node_father = new_children.node_father
-            
-            # Adicionando o filho no avo
-            no_avo = new_children.node_father
-            
-            no_avo.nodes_children.remove(new_children)
-            
-            # Adicionando o novo nó filho no avo
-            no_avo.nodes_children = novo_no_pai
-            
-            debugger('balanceamento', f'Filhos do nó avô: {no_avo.nodes_children}', DEBUGGER)
-            
-            # Adicionando o novo nó filho para o novo nó pai
-            novo_no_pai.nodes_children = new_children
-            
-            # Removendo o antigo nó pai e adicionando o novo nó pai
-            new_children.node_father = novo_no_pai
-            
-            # Removendo o no pai da lista de nos filho do antigo pai
-            if novo_no_pai in new_children.nodes_children: new_children.nodes_children.remove(novo_no_pai)
-                
-            # Informações do novo nó pai e do antigo nó pai:
-            for node in [novo_no_pai, new_children]:
-                if DEBUGGER: print('-'*30)
-                debugger('balanceamento', node, DEBUGGER)
-                debugger('balanceamento', f'Nó pai: {node.node_father}', DEBUGGER)
-                debugger('balanceamento', f'Nós filhos: {node.nodes_children}', DEBUGGER)
-                debugger('balanceamento', f'Direção: {node.direction}', DEBUGGER)
-                if DEBUGGER: print('-'*30)
-            
-            debugger('balanceamento', 'FIM DA ANÁLISE...', DEBUGGER)
-            if DEBUGGER: print('-'*30)
-                
-            return
-            
-            
-        new_father_node = father_node.node_father
-        
-        return self.balanceamento(new_father_node)
-        
-
-    def adicionar(self, node_father, node_add: Celula):
-        # Fazer o balanceamento antes de adicionar o nó de fato na árvore.
+    def adicionar(self, node_father, node_add):
         super().adicionar(node_father, node_add)
+        debugger(f'adicionar: O nó {node_add} foi adicionado com sucesso!')
+        self.balanceamento(node_add)
+        debugger('-'*40)
         
-        self.balanceamento(node_father)
+    def balanceamento(self, node: Celula):
+        atual = node
+        while atual:
+            debugger(f'balanceamento: Análisando o nó {atual}')
+            fb = self.fator_balanceamento(atual)
+            debugger(f'balanceamento: Fator de balanceamento: {fb}')
+            if fb > 1:
+                debugger(f'balanceamento: Desbalanceamento à esquerda. Rotação à direita')
+                self.rotacao(atual, self.filho_esquerdo(atual), Direction.DIREITA)
+                break
+                
+            elif fb < -1:
+                debugger(f'balanceamento: Desbalanceamento à direita. Rotação à esquerda')
+                self.rotacao(atual, self.filho_direito(atual), Direction.ESQUERDA)
+                break
+            atual = atual.node_father
         
+    def fator_balanceamento(self, node: Celula):
+        try:
+            esq = self.filho_esquerdo(node)
+            direita = self.filho_direito(node)
+            altura_esq = self.altura_no(esq) if esq else 0
+            altura_dir = self.altura_no(direita) if direita else 0
+            
+            return altura_esq - altura_dir
+        
+        except Exception as e:
+            print('Erro ao calcular o fator de balanceamento...')
+            return 0
+        
+    def filho_esquerdo(self, node: Celula):
+        return next((filho for filho in node.nodes_children if filho.direction == Direction.ESQUERDA), None)
+        
+    def filho_direito(self, node: Celula):
+        return next((filho for filho in node.nodes_children if filho.direction == Direction.DIREITA), None)
+    
     def altura_no(self, node):
         return super().altura_no(node) + 1
     
-    def realizar_balanceamento(self, peso):
-        ...
+    def rotacao(self, no_pai: Celula, no_filho: Celula, direcao_: Direction):
+        no_pai_filho = no_pai
+        no_filho_pai = no_filho
+        
+        atributos_no_pai_filho = self.get_attributes(no_pai_filho)
+        atributos_no_filho_pai = self.get_attributes(no_filho_pai)
+        
+        # Mudando os atributos do no_filho_pai
+        novo_pai = atributos_no_pai_filho[0]
+        novos_filhos = atributos_no_pai_filho[1].copy()
+        nova_direcao = atributos_no_filho_pai[2]
+        
+        no_filho_pai.node_father = novo_pai if novo_pai != None else None
+        novos_filhos.remove(no_filho_pai)
+        no_filho_pai.nodes_children = next((no_filho for no_filho in novos_filhos), None)
+        no_filho_pai.nodes_children.pop() # Removendo o None
+        
+        no_filho_pai.nodes_children.append(no_pai_filho) 
+        no_filho_pai.direction = nova_direcao if novo_pai != None else Direction.RAIZ
+        
+        if no_filho_pai.direction == Direction.RAIZ: self.RAIZ = no_filho_pai # Definindo a nova raiz caso o nó não possua pai
+        
+        debugger('-'*40)
+        debugger('INFORMAÇÕES DO no_filho_pai')
+        debugger(f'Nó {no_filho_pai.content}')
+        debugger(f'Nó pai {no_filho_pai.node_father}')
+        debugger(f'Nós filhos {no_filho_pai.nodes_children}')
+        debugger(f'Nó direção: {no_filho_pai.direction}')
+        debugger('-'*40)
+        
+        # Mudando os atributos do no_pai_filho
+        novo_pai = atributos_no_filho_pai[0] 
+        novos_filhos = atributos_no_filho_pai[1].copy() # Não deve ser colocado, pois está com os filhos do no_filhos_pai. Causando o nó com dois pais
+        nova_direcao = atributos_no_filho_pai[2] # Não deve ser usado
+        
+        
+        no_pai_filho.node_father = no_filho_pai
+        no_pai_filho.nodes_children.remove(no_filho_pai)
+        no_pai_filho.direction = direcao_
+        
+        debugger('-'*40)
+        debugger('INFORMAÇÕES DO no_pai_filho')
+        debugger(f'Nó {no_pai_filho.content}')
+        debugger(f'Nó pai {no_pai_filho.node_father}')
+        debugger(f'Nós filhos {no_pai_filho.nodes_children}')
+        debugger(f'Nó direção: {no_pai_filho.direction}')
+        debugger('-'*40)
+        
+        # Alterar o no_avo
+        if no_filho_pai.node_father != None:
+            no_avo = no_filho_pai.node_father
+            no_avo.nodes_children.remove(no_pai_filho)
+            no_avo.nodes_children.append(no_filho_pai)
+            
+        self.reconstrucao_arvore()
+    
+    def reconstrucao_arvore(self):
+        # Adicionando os novos nós:
+        NewGraph = nx.DiGraph()
+        for no in list(self.Tree):
+            filho_esquerdo = self.filho_esquerdo(no)
+            filho_direito = self.filho_direito(no)
+            
+            if filho_esquerdo: NewGraph.add_edge(no, filho_esquerdo)
+            if filho_direito: NewGraph.add_edge(no, filho_direito)
+        
+        self.Tree = NewGraph
+        self.imprimir_hierarquia()
+        
+    def get_attributes(self, node: Celula):
+        no_pai = node.node_father
+        nos_filhos = node.nodes_children.copy()
+        no_direcao = node.direction
+        
+        return no_pai, nos_filhos, no_direcao
+        
+    def mostrar_arvore(self):
+        for node in list(self.Tree):
+            print(f'Node: {node.content}')
+            print(f'Nó pai: {node.node_father}')
+            print(f'Nós filhos: {node.nodes_children}')
+            print(f'Nó direção: {node.direction}')
+            print('-'*40)
         
     def verificar_no(self, node: Celula):
         return {
@@ -160,45 +144,23 @@ class ArvoreAVL(ArvoreBinaria):
             'Direção': node.direction.value
         }
 
-if __name__ == "__main__":
-    # Adicionando os nós
-    # avl1 = ArvoreAVL('15')
-    # avl1.adicionar('15', Celula(None, None, '27', Direction.ESQUERDA))
-    # avl1.adicionar('27', Celula(None, None, '29', Direction.ESQUERDA))
+
+
+# Área de testes ----------------------------------------------------------------------------------------------------------------------------
+def executa_avl1():
+    avl1 = ArvoreAVL('27')
+    avl1.adicionar(avl1.found_index_node('27') , Celula(None, None, '15', Direction.ESQUERDA))
+    avl1.adicionar(avl1.found_index_node('27') , Celula(None, None, '29', Direction.DIREITA))
+    avl1.adicionar(avl1.found_index_node('15') , Celula(None, None, '16', Direction.ESQUERDA))
     
+    # Desbalanceando a árvore
+    avl1.adicionar(avl1.found_index_node('16'), Celula(None, None, '17', Direction.ESQUERDA))
+    avl1.adicionar('29', Celula(None, None, '13', Direction.DIREITA))
+    avl1.adicionar('13', Celula(None, None, '12', Direction.DIREITA))
     
-    # avl2 = ArvoreAVL('15')
-    # avl2.adicionar('15', Celula(None, None, '27', Direction.DIREITA))
-    # avl2.adicionar('27', Celula(None, None, '29', Direction.DIREITA))
-    
-    avl3 = ArvoreAVL('27')
-    avl3.adicionar(avl3.RAIZ, Celula(None, None, '15', Direction.ESQUERDA))
-    avl3.adicionar(avl3.RAIZ, Celula(None, None, '29', Direction.DIREITA))
-    avl3.adicionar('15', Celula(None, None, '16', Direction.ESQUERDA))
-    avl3.adicionar('16', Celula(None, None, '17', Direction.ESQUERDA))
-    avl3.adicionar('29', Celula(None, None, '13', Direction.DIREITA))
-    avl3.adicionar('13', Celula(None, None, '12', Direction.DIREITA))
-    
-    # Imprindo
-    # print('AVL 1:')
-    # for node in list(avl1.Tree): print(avl1.verificar_no(node))
-    # print('-'*30)
-        # AVL 1:
-        # {'Nó': '15', 'Pai': 27, 'Filhos': [], 'Direção': 'Direita'}
-        # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [29, 15], 'Direção': 'RAIZ'}
-        # {'Nó': '29', 'Pai': 27, 'Filhos': [], 'Direção': 'Esquerda'}
-    
-    # print('AVL 2:')
-    # for node in list(avl2.Tree): print(avl2.verificar_no(node))
-    # print('-'*30)
-        # AVL 2:
-        # {'Nó': '15', 'Pai': 27, 'Filhos': [], 'Direção': 'Esquerda'}
-        # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [29, 15], 'Direção': 'RAIZ'}
-        # {'Nó': '29', 'Pai': 27, 'Filhos': [], 'Direção': 'Direita'}
-    
-    print('AVL 3:')
-    for node in list(avl3.Tree): print(avl3.verificar_no(node))
-        # AVL 3:
+    print('AVL 1')
+    for node in list(avl1.Tree): print(avl1.verificar_no(node))
+    # AVL 1:
         # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [16, 13], 'Direção': 'RAIZ'}
         # {'Nó': '15', 'Pai': 16, 'Filhos': [], 'Direção': 'Direita'}
         # {'Nó': '29', 'Pai': 13, 'Filhos': [], 'Direção': 'Esquerda'}
@@ -206,6 +168,39 @@ if __name__ == "__main__":
         # {'Nó': '17', 'Pai': 16, 'Filhos': [], 'Direção': 'Esquerda'}
         # {'Nó': '13', 'Pai': 27, 'Filhos': [12, 29], 'Direção': 'Direita'}
         # {'Nó': '12', 'Pai': 13, 'Filhos': [], 'Direção': 'Direita'}
-        
-
     
+    print('Mostrar árvore')
+    avl1.imprimir_hierarquia()
+
+def executa_avl2():
+    avl2 = ArvoreAVL('15')
+    avl2.adicionar('15', Celula(None, None, '27', Direction.ESQUERDA))
+    avl2.adicionar('27', Celula(None, None, '29', Direction.ESQUERDA))
+
+    # Impressão
+    print('AVL 2:')
+    for node in list(avl2.Tree): print(avl2.verificar_no(node))
+    print('-'*30)
+    # AVL 2:
+        # {'Nó': '15', 'Pai': 27, 'Filhos': [], 'Direção': 'Direita'}
+        # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [29, 15], 'Direção': 'RAIZ'}
+        # {'Nó': '29', 'Pai': 27, 'Filhos': [], 'Direção': 'Esquerda'}
+    
+def executa_avl3():
+    avl3 = ArvoreAVL('15')
+    avl3.adicionar('15', Celula(None, None, '27', Direction.DIREITA))
+    avl3.adicionar('27', Celula(None, None, '29', Direction.DIREITA))
+    
+    # Impressão
+    print('AVL 3:')
+    for node in list(avl3.Tree): print(avl3.verificar_no(node))
+    print('-'*30)
+    # AVL 3:
+        # {'Nó': '15', 'Pai': 27, 'Filhos': [], 'Direção': 'Esquerda'}
+        # {'Nó': '27', 'Pai': 'Não possui', 'Filhos': [29, 15], 'Direção': 'RAIZ'}
+        # {'Nó': '29', 'Pai': 27, 'Filhos': [], 'Direção': 'Direita'}
+    
+if __name__ == '__main__':
+    executa_avl1()
+    # executa_avl2()
+    # executa_avl3()

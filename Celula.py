@@ -43,7 +43,11 @@ class Celula:
     def nodes_children(self): return self._nodes_children
     
     @nodes_children.setter
-    def nodes_children(self, node_children: Optional['Celula']): self._nodes_children.append(node_children)
+    def nodes_children(self, node_children: Optional['Celula'] | list['Celula']):
+        if isinstance(node_children, list):
+            self._nodes_children = node_children
+        else:
+            self._nodes_children.append(node_children)
     
     # Direção
     @property
