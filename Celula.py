@@ -6,6 +6,10 @@ class Direction(Enum):
     ESQUERDA = 'Esquerda'
     DIREITA = 'Direita'
     RAIZ = 'RAIZ'
+    
+class Cor(Enum):
+    VERMELHO = 'Vermelho'
+    PRETO = 'Preto'
 
 @dataclass
 class Celula:
@@ -13,6 +17,7 @@ class Celula:
     _nodes_children: List['Celula'] = field(default_factory=list)
     content: Any = None
     _direction: Direction = None
+    _cor: Cor = Cor.VERMELHO 
     
     def __post_init__(self):
         if self._nodes_children is None:
@@ -48,6 +53,13 @@ class Celula:
     
     @direction.setter
     def direction(self, set_direction: Direction) -> None: self._direction = set_direction
+    
+    #Cores
+    @property
+    def cor(self): return self._cor
+
+    @cor.setter
+    def cor(self, nova_cor: Cor): self._cor = nova_cor
     
     
 # Teste    
