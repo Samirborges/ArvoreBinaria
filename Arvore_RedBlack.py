@@ -4,12 +4,14 @@ from Celula import Direction, Celula, Color
 class Arvore_RedBlack(ArvoreAVL):    
     def adicionar(self, node_father: Celula, node_add: Celula):
         super().adicionar(node_father, node_add)
-        self.verificar_cor_no(node_father, node_add)
+        #self.verificar_cor_no(node_father, node_add)
         self.RAIZ.color = Color.PRETO
         # self.transformar_nos_folha()    
     
     def verificar_cor_no(self, node_father: Celula, node_add: Celula):
-        if node_add.color == 'Vermelho' and node_father.color == 'Vermelho': node_add.color = Color.PRETO
+        if node_add.color == 'Vermelho' and node_father.color == 'Vermelho':
+            node_add.color = Color.PRETO
+            #Este método não está alterando o resultado da execução do código
     
     def transformar_nos_folha(self):
         lista_nos_folhas = self.identify_node_sheet()
@@ -27,13 +29,13 @@ class Arvore_RedBlack(ArvoreAVL):
 # Área de testes ----------------------------------------------------------------------------------------------------------------------------
 def executa_avl1():
     avl1 = Arvore_RedBlack('27')
-    avl1.adicionar(avl1.found_index_node('27') , Celula(None, None, '15', Direction.ESQUERDA, Color.PRETO))
+    avl1.adicionar(avl1.found_index_node('27') , Celula(None, None, '15', Direction.ESQUERDA, Color.VERMELHO))
     avl1.adicionar(avl1.found_index_node('27') , Celula(None, None, '29', Direction.DIREITA, Color.VERMELHO))
     avl1.adicionar(avl1.found_index_node('15') , Celula(None, None, '16', Direction.ESQUERDA, Color.VERMELHO))
     
     # Desbalanceando a árvore
     avl1.adicionar(avl1.found_index_node('16'), Celula(None, None, '17', Direction.ESQUERDA, Color.VERMELHO))
-    avl1.adicionar(avl1.found_index_node('29'), Celula(None, None, '13', Direction.DIREITA, Color.PRETO))
+    avl1.adicionar(avl1.found_index_node('29'), Celula(None, None, '13', Direction.DIREITA, Color.VERMELHO))
     avl1.adicionar(avl1.found_index_node('13'), Celula(None, None, '12', Direction.DIREITA, Color.VERMELHO))
     
     avl1.finalizar_arvore()
