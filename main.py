@@ -1,14 +1,14 @@
 import tkinter as tk
 from tkinter import simpledialog, messagebox
-from ArvoreBinaria import ArvoreBinaria
-from Celula import Celula, Direction
+from arquivos_arvores.ArvoreBinaria import ArvoreBinaria
+from arquivos_arvores.Celula import Celula, Direction
 
 class ArvoreGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Árvore Binária - Interface Gráfica")
         
-        self.arvore = ArvoreBinaria()
+        self.arvore = ArvoreBinaria("RAIZ")
 
         # Criando botões
         btn_adicionar = tk.Button(root, text="Adicionar Nó", command=self.adicionar_no, width=20)

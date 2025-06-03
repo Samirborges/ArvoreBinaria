@@ -1,6 +1,10 @@
-from ArvoreBinaria import ArvoreBinaria
-from Celula import Celula, Direction
 import networkx as nx
+
+# from ArvoreBinaria import ArvoreBinaria
+# from Celula import Celula, Direction
+
+from arquivos_arvores.ArvoreBinaria import ArvoreBinaria
+from arquivos_arvores.Celula import Celula, Direction
 
 DEBUGGER = False
 def debugger(mensagem: str):
@@ -119,7 +123,7 @@ class ArvoreAVL(ArvoreBinaria):
             if filho_direito: NewGraph.add_edge(no, filho_direito)
         
         self.Tree = NewGraph
-        self.imprimir_hierarquia()
+        # self.imprimir_hierarquia()
         
     def get_attributes(self, node: Celula):
         no_pai = node.node_father
