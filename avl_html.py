@@ -11,7 +11,7 @@ from components.formulario_nivel_no import formulario_nivel_no
 
 app, routes = fast_app()
 
-avl = ArvoreAVL('27')
+avl = ArvoreAVL('0')
 
 # Função para gerar representação textual hierárquica da árvore
 def gerar_estrutura_textual(no: Celula, prefixo: str = "", eh_esquerdo: bool = True):
